@@ -5,15 +5,15 @@ import numpy as np
 import deepxde as dde
 import pandas as pd  
 from deepxde.backend import tf
-df = pd.read_excel(r'C:\Users\1.875.xlsx')            
+            
 plt.rcParams['font.sans-serif'] = ['SimHei']  
 plt.rcParams['axes.unicode_minus'] = False
 
+#the specific heat ratio 
 gamma = 1.4
-R = 287.0
 
 
-#Set the neural network inputs and outputs ,and the PDE
+#Set the neural network inputs and outputs, and PDE to be solved. The input of the neural network is x and the output is rho,v,t,P.
 def pde(x, F):
     rho,v,t,p = F[:, 0:1], F[:, 1:2], F[:, 2:3],F[:, 3:4]
     
@@ -35,11 +35,13 @@ def pde(x, F):
 
     return m_x, e_x,  mv_x, p-rho*t
 
+
 def A(x):
     return (1+2.2*(x-1.5)**2)
 
 
-#Set boundary condition
+#Set boundary. x∈(1.5,2.25)
+
 def boundary1(x,on_boundary):
     return on_boundary and np.isclose(x[0],1.5)
 def boundary2(x,on_boundary):
@@ -48,7 +50,7 @@ def boundary2(x,on_boundary):
 
 domain = dde.geometry.Interval(1.5,2.25)
 
-
+#Set the boundary conditions at the inlet. 
 boundary_F1_1 = dde.icbc.DirichletBC(domain,lambda x:0.634,boundary1, component=0)
 
 boundary_F2_1 = dde.icbc.DirichletBC(domain,lambda x:0.912,boundary1, component=1)
@@ -60,7 +62,7 @@ boundary_F4_1 = dde.icbc.DirichletBC(domain,lambda x:0.528,boundary1, component=
 
 
 
-#Set the number of training points and their distribution
+#Set the number of training points and their distribution.
 data = dde.data.PDE(
     domain,
     pde,
