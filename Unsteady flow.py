@@ -5,7 +5,7 @@ import numpy as np
 import deepxde as dde
 import pandas as pd  
 from deepxde.backend import tf 
-df = pd.read_excel(r'C:\Users\1.875.xlsx')
+
 plt.rcParams['font.sans-serif'] = ['SimHei']  
 plt.rcParams['axes.unicode_minus'] = False
 
