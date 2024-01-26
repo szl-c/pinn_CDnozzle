@@ -1,10 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
-#导入相关库
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -17,7 +10,7 @@ plt.rcParams['font.sans-serif'] = ['SimHei']
 plt.rcParams['axes.unicode_minus'] = False
 
 
-#Set the neural network inputs and outputs ,and the PDE
+#Set the neural network inputs and outputs, and PDE to be solved. The input of the neural network is x,t and the output is rho,v,t,P.
 def pde(x, F):
     rho,v,t,p = F[:, 0:1], F[:, 1:2], F[:, 2:3],F[:, 3:4]
     
@@ -116,16 +109,5 @@ model.compile("L-BFGS")
 losshistory, train_state = model.train()
 
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
 
 
