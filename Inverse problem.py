@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[2]:
-
-
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -11,20 +5,20 @@ import numpy as np
 import deepxde as dde
 import pandas as pd  
 from deepxde.backend import tf
-df = pd.read_excel(r'C:\Users\1.875.xlsx')            
+            
 plt.rcParams['font.sans-serif'] = ['SimHei']  
 plt.rcParams['axes.unicode_minus'] = False
 
 gamma = dde.Variable(0.0)
-R = 287.0
 
-#Import preparatory data
+
+#Set the specific heat ratio to the variable to be optimised with an initial value of 0.
 df1 = pd.read_excel(r'C:\Users\log4_50.xlsx',sheet_name='p',usecols=[1, 1]) 
 arr = df1.to_numpy()
 ob_p = arr.reshape(50,1)
 ob_x = np.linspace(0, 2.25,50).reshape(50, 1)
 
-#Set the neural network inputs and outputs ,and the PDE
+#Set the neural network inputs and outputs, and PDE to be solved. The input of the neural network is x and the output is rho,v,t,P.
 
 def pde(x, F):
     rho,v,t,p = F[:, 0:1], F[:, 1:2], F[:, 2:3],F[:, 3:4]
@@ -44,20 +38,17 @@ def pde(x, F):
 def A(x):
     return (1+2.2*(x-1.5)**2)
 
-#Set hard constrained boundary conditions
+#Set hard constrained boundary conditions.Fix the loss of pressure at the boundary to 0.
 def modify_output(x,F):
     
     rho, v, t,p = F[:, 0:1], F[:, 1:2], F[:,2:3],F[:,3:4]
     
-    rho_new =x[:,0:1]*rho+1
-    v_new = 1*v
-    t_new = x[:,0:1]*t+1
     p_new = x*(x-2.25)*p+(-0.084369*x+1)
 
-    return  tf.concat((rho,v_new,t,p_new), axis=1)
+    return  tf.concat((rho,v,t,p_new), axis=1)
 
 
-#Set boundary condition
+#Set boundary. x∈(0,2.25)
 def boundary1(x,on_boundary):
     return on_boundary and np.isclose(x[0],0)
 def boundary2(x,on_boundary):
@@ -66,33 +57,32 @@ def boundary2(x,on_boundary):
 
 domain = dde.geometry.Interval(0,2.25)
 
+#Set the boundary conditions at the inlet and outlet.
 boundary_F1_1 = dde.icbc.DirichletBC(domain,lambda x:1,boundary1, component=0)
 
-
 boundary_F3_1 = dde.icbc.DirichletBC(domain,lambda x:1,boundary1, component=2)
-boundary_F4_1 = dde.icbc.DirichletBC(domain,lambda x:1,boundary1, component=3)
 
+boundary_F4_1 = dde.icbc.DirichletBC(domain,lambda x:1,boundary1, component=3)
 
 boundary_F4_2 = dde.icbc.DirichletBC(domain,lambda x:0.81017,boundary2, component=3)
 
-
 observe_p = dde.icbc.PointSetBC(ob_x, ob_p, component=3)
 
-
+#Set the number of training points and their distribution.
 data = dde.data.PDE(
     domain,
     pde,
     [boundary_F1_1, boundary_F3_1,boundary_F4_1, boundary_F4_2,observe_p ],
     num_domain=2000,
     num_boundary=2,
-
     train_distribution='uniform'
 )
 
-
+#Set the size of the neural network, activation function, initialization method
 net = dde.nn.FNN([1] + 3 * [30] + [4], "tanh", "Glorot uniform")
 
 net.apply_output_transform(modify_output)
+
 
 #Save the variables that need to be optimized
 variable = dde.callbacks.VariableValue(gamma, period=500,filename="variables.dat")
@@ -108,34 +98,4 @@ model.compile("L-BFGS",external_trainable_variables=gamma)
 model.train(callbacks=[variable],display_every=1000)
 losshistory, train_state = model.train(callbacks=[variable],display_every=1000)
 dde.saveplot(losshistory, train_state, issave=True, isplot=True)
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
 
