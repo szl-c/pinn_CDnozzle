@@ -1,25 +1,18 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 import numpy as np
 import deepxde as dde
 import pandas as pd  
-from deepxde.backend import tf
-df = pd.read_excel(r'C:\Users\1.875.xlsx')            
+from deepxde.backend import tf           
 plt.rcParams['font.sans-serif'] = ['SimHei']  
 plt.rcParams['axes.unicode_minus'] = False
 
+#et the specific heat radio.
 gamma = 1.4
-R = 287.0
 
 
-#Set the neural network inputs and outputs ,and the PDE
+#Set the neural network inputs and outputs, and PDE to be solved. The input of the neural network is x and the output is rho,v,t,P.
 def pde(x, F):
     rho,v,t,p = F[:, 0:1], F[:, 1:2], F[:, 2:3],F[:, 3:4]
     
@@ -44,7 +37,7 @@ def pde(x, F):
 def A(x):
     return (1+2.2*(x-1.5)**2)
 
-#Set hard constrained boundary conditions
+#Set hard constrained boundary conditions.Fix the loss of pressure at the boundary to 0.
 def modify_output(x,F):
     
     rho, v, t,p = F[:, 0:1], F[:, 1:2], F[:,2:3],F[:,3:4]
@@ -57,7 +50,7 @@ def modify_output(x,F):
     return  tf.concat((rho,v_new,t,p_new), axis=1)
 
 
-#Set boundary condition
+#Set boundary. x∈(0,2.25)
 def boundary1(x,on_boundary):
     return on_boundary and np.isclose(x[0],0)
 def boundary2(x,on_boundary):
@@ -66,13 +59,15 @@ def boundary2(x,on_boundary):
 
 domain = dde.geometry.Interval(0,2.25)
 
-
+#Set the boundary conditions at the inlet and outlet.
 boundary_F1_1 = dde.icbc.DirichletBC(domain,lambda x:1,boundary1, component=0)
 
 
 boundary_F3_1 = dde.icbc.DirichletBC(domain,lambda x:1,boundary1, component=2)
+
 boundary_F4_1 = dde.icbc.DirichletBC(domain,lambda x:1,boundary1, component=3)
 
+#Changing the value of the pressure boundary condition at the outlet, different flow conditions can be obtained.
 
 boundary_F4_2 = dde.icbc.DirichletBC(domain,lambda x:0.81017,boundary2, component=3)
 
@@ -132,26 +127,19 @@ writer.close()
 
 
 plt.figure(num=1)
-
 plt.plot(x, F1, color="red", linewidth=1.0, linestyle="-")
-
 plt.xlabel(' x ')
 plt.ylabel(' rho/rho0 ')
 plt.title('Density')
 
 plt.figure(num=2)
-
 plt.plot(x, F3, color="red", linewidth=1.0, linestyle="-")
-
 plt.xlabel(' x ')
 plt.ylabel(' T/T0 ')
 plt.title('Temperature')
 
 plt.figure(num=3)
-x0 = df['x']
-p0 = df['p']
 plt.plot(x, F4, color="red", linewidth=1.0, linestyle="-")
-plt.plot(x0, p0, color="blue", linewidth=1.0, linestyle="-")
 plt.xlabel(' x ')
 plt.ylabel(' p/p0 ')
 plt.title('Presssure')
@@ -168,31 +156,6 @@ plt.show()
 
 
 
-a=np.linspace(0,2.25,50).reshape(50,1)
-K=model.predict(a)
-k1=K[:,0]
-k2=K[:,1]
-k3=K[:,2]
-k4=K[:,3]
-print(k1)
-print(k2)
-print(k3)
-print(k4)
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
 
 
 
