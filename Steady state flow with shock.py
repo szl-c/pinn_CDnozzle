@@ -42,12 +42,9 @@ def modify_output(x,F):
     
     rho, v, t,p = F[:, 0:1], F[:, 1:2], F[:,2:3],F[:,3:4]
     
-    rho_new =x[:,0:1]*rho+1
-    v_new = 1*v
-    t_new = x[:,0:1]*t+1
     p_new = x*(x-2.25)*p+(-0.084369*x+1)
 
-    return  tf.concat((rho,v_new,t,p_new), axis=1)
+    return  tf.concat((rho,v,t,p_new), axis=1)
 
 
 #Set boundary. x∈(0,2.25)
