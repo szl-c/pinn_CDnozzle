@@ -62,16 +62,16 @@ geom = dde.geometry.Interval(0,2.25)
 time = dde.geometry.TimeDomain(0, 15)
 geomtime = dde.geometry.GeometryXTime(geom, time)
 
-
+#set boundary condition
 boundary_F1_1 = dde.icbc.DirichletBC(geomtime,lambda x:1,boundary1, component=0)
 
 boundary_F3_1 = dde.icbc.DirichletBC(geomtime,lambda x:1,boundary1, component=2)
 
 boundary_F4_1 = dde.icbc.DirichletBC(geomtime,lambda x:1,boundary1, component=3)
 
-
 boundary_F4_2 = dde.icbc.DirichletBC(geomtime,lambda x: 0.81017 ,boundary2, component=3)
 
+#set initial condition
 
 ic_rho = dde.icbc.IC(geomtime,lambda x: 1, initial, component=0)
 ic_v = dde.icbc.IC(geomtime,lambda x: 0, initial, component=1)
@@ -79,11 +79,13 @@ ic_T = dde.icbc.IC(geomtime,lambda x:1, initial, component=2)
 ic_p = dde.icbc.IC(geomtime,lambda x:1, initial, component=3)
 
 #Add additional training points
+
 j0, k0 = np.meshgrid(np.linspace(0, 2.25, 50), np.linspace(7.5,15, 50))
 Anchors = np.vstack((np.ravel(j0), np.ravel(k0))).T
 
 
 #Set the number of training points and their distribution
+
 data = dde.data.TimePDE(
     geomtime,
     pde,
