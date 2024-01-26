@@ -103,7 +103,7 @@ net.apply_output_transform(modify_output)
 
 
 model = dde.Model(data, net)
-
+#Set optimizer parameters, weight distribution
 model.compile("adam",lr=1e-4,loss_weights=[1, 1,20,1, 1, 1,1,1 ,1,1])
 model.train(epochs=10000)
 model.compile("L-BFGS")
