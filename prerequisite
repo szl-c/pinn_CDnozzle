@@ -1,0 +1,7 @@
+Package                       Version  
+
+DeepXDE                       1.10.0
+Python                        3.9.12
+tensorflow                    2.10.0
+numpy                         1.21.5
+matplotlib                    3.5.1
