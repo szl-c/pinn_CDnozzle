@@ -1,5 +1,0 @@
-deepxde
-python
-tensorflow
-numpy
-matplotli
